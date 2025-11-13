@@ -64,13 +64,78 @@ def float_to_14bit_no_sign(value):
     return result
 
 
-def encode_msg(obj):
-    # temp = obj["temperatura"]
-    # humid = obj["humedad"]
-    # wind = obj["direccion_viento"]
-    temp = 110.99
-    humid = 110
-    wind = "NO"
+def extract_mantissa_exponent(value_14bit):
+    """
+    Extracts mantissa and exponent from a 14-bit integer.
+    Format: 5-bit exponent (MSB) + 9-bit mantissa (LSB)
+
+    Args:
+        value_14bit: 14-bit integer value
+
+    Returns:
+        tuple: (mantissa, exponent)
+    """
+    # Extract exponent (bits 9-13)
+    exponent = (value_14bit & 0b11111000000000) >> 9
+
+    # Extract mantissa (bits 0-8)
+    mantissa = value_14bit & 0b00000111111111
+
+    return (mantissa, exponent)
+
+
+def custom_14bit_to_float(mantissa, exponent):
+    """
+    Converts mantissa and exponent back to decimal value.
+    Format: 5-bit exponent + 9-bit mantissa (no sign)
+
+    Args:
+        mantissa: 9-bit mantissa value (0-511)
+        exponent: 5-bit exponent value (0-31)
+
+    Returns:
+        float: The decimal value
+    """
+    exponent_bias = 15
+
+    # Handle zero case
+    if exponent == 0 and mantissa == 0:
+        return 0.0
+
+    # Reconstruct the mantissa (add implicit leading 1)
+    mantissa_value = 1.0 + (mantissa / 512.0)
+
+    # Unbias the exponent
+    actual_exponent = exponent - exponent_bias
+
+    # Calculate final value
+    value = mantissa_value * (2**actual_exponent)
+
+    return value
+
+
+def decode_14bit(value_14bit):
+    """
+    Converts a 14-bit integer back to a normal float.
+    Format: 5-bit exponent + 9-bit mantissa (no sign)
+
+    Args:
+        value_14bit: 14-bit integer value
+
+    Returns:
+        float: The decoded floating-point value
+    """
+    mantissa, exponent = extract_mantissa_exponent(value_14bit)
+    return custom_14bit_to_float(mantissa, exponent)
+
+
+def encode_msg(obj) -> str:
+    temp = obj["temperatura"]
+    humid = obj["humedad"]
+    wind = obj["direccion_viento"]
+    # temp = 110.99
+    # humid = 110
+    # wind = "NO"
 
     wInt = [i for (i, x) in enumerate(DIRECTIONS) if x == wind][0]
     formatStr = "{:6}->{:7b}->{:24b}"
@@ -80,6 +145,21 @@ def encode_msg(obj):
 
     res = (wInt << 21) | (humid << 14) | float_to_14bit_no_sign(temp)
     print("res: {:36b}".format(res))
-    print("=" * 20 * 2)
+    print("bytes: {}".format(res.to_bytes(3, "big")))
 
-    return res
+    return res.to_bytes(3)
+
+
+def decode_msg(msg: bytes) -> dict:
+    resInt = int.from_bytes(msg, "big")
+    wInt = resInt & 0b111000000000000000000000
+    wind = DIRECTIONS[wInt >> 21]
+
+    humid = (resInt & 0b00011111110000000000000) >> 14
+    temp = decode_14bit(resInt & 0b00000000001111111111111)
+
+    return {
+        "temperatura": temp,
+        "humedad": humid,
+        "direccion_viento": wind,
+    }

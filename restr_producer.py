@@ -6,7 +6,7 @@ import os
 import json
 from confluent_kafka import Producer
 from dotenv import load_dotenv
-from lib import encode_msg, DIRECTIONS
+from lib import encode_msg, decode_msg, DIRECTIONS
 
 
 if __name__ == "__main__":
@@ -34,11 +34,15 @@ if __name__ == "__main__":
         print("Starting to generate data...")
         while True:
             obj = {
-                "temperatura": random.gauss(25, 10),
-                "humedad": math.ceil(random.gauss(25, 10)),
+                "temperatura": abs(random.gauss(25, 10)),
+                "humedad": abs(math.ceil(random.gauss(25, 10))),
                 "direccion_viento": random.choice(DIRECTIONS),
             }
             encoded = encode_msg(obj)
+            decoded = decode_msg(encoded)
+
+            print("Original: {}".format(obj), "Encoded:  {}".format(decoded), sep="\n")
+            print("=" * 20 * 2)
             # producer.produce(topic, key="sensor1", value=encoded, callback=acked)
             # Wait up to 1 second for events. Callbacks will be invoked during
             # this method call if the message is acknowledged.
