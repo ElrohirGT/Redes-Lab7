@@ -60,6 +60,9 @@ def float_to_14bit_no_sign(value):
 
     # Pack into 14 bits: exponent(5) + mantissa(9)
     result = (biased_exponent << 9) | mantissa_bits
+    print("Computed: {:14b}".format(result))
+    print("Exponent: {:b}".format(biased_exponent << 9))
+    print("Mantissa: {:14b}".format(mantissa_bits))
 
     return result
 
@@ -81,6 +84,9 @@ def extract_mantissa_exponent(value_14bit):
     # Extract mantissa (bits 0-8)
     mantissa = value_14bit & 0b00000111111111
 
+    print("Received: {:14b}".format(value_14bit))
+    print("Exponent: {:b}".format(exponent))
+    print("Mantissa: {:14b}".format(mantissa))
     return (mantissa, exponent)
 
 
@@ -141,22 +147,23 @@ def encode_msg(obj) -> str:
     formatStr = "{:6}->{:7b}->{:24b}"
     print(formatStr.format(wind, wInt, wInt << 21))
     print(formatStr.format(humid, humid, humid << 14))
-    print("{:6}->{:7}->{:24b}".format(temp, temp, float_to_14bit_no_sign(temp)))
+    tempInt = float_to_14bit_no_sign(temp)
+    print("{:6.2f}->{:7.2f}->{:24b}".format(temp, temp, tempInt))
 
-    res = (wInt << 21) | (humid << 14) | float_to_14bit_no_sign(temp)
+    res = (wInt << 21) | (humid << 14) | tempInt
     print("res: {:36b}".format(res))
-    print("bytes: {}".format(res.to_bytes(3, "big")))
+    print("bytes: {}".format(res.to_bytes(3)))
 
     return res.to_bytes(3)
 
 
 def decode_msg(msg: bytes) -> dict:
-    resInt = int.from_bytes(msg, "big")
+    resInt = int.from_bytes(msg)
     wInt = resInt & 0b111000000000000000000000
     wind = DIRECTIONS[wInt >> 21]
 
     humid = (resInt & 0b00011111110000000000000) >> 14
-    temp = decode_14bit(resInt & 0b00000000001111111111111)
+    temp = decode_14bit(resInt & 0b000000000011111111111111)
 
     return NewDataRow(temp, humid, wind)
 
