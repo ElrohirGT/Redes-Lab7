@@ -27,9 +27,6 @@ if __name__ == "__main__":
     config = {
         # User-specific properties that you must set
         "bootstrap.servers": os.getenv("KAFKA_IP"),
-        # Fixed properties
-        "group.id": "kafka-python-getting-started",
-        "auto.offset.reset": "earliest",
     }
 
     # Create Consumer instance
@@ -46,6 +43,7 @@ if __name__ == "__main__":
             print("Message produced: %s" % (str(msg)))
 
     try:
+        print("Starting to generate data...")
         while True:
             obj = {
                 "temperatura": random.gauss(25, 10),
@@ -64,4 +62,4 @@ if __name__ == "__main__":
         print("FATAL ERROR: {}".format(e))
     finally:
         # Leave group and commit final offsets
-        producer.close()
+        producer.flush()
