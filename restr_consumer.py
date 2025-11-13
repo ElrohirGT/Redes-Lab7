@@ -101,7 +101,7 @@ if __name__ == "__main__":
                     )
                 )
 
-                dictObj = lib.decode_msg(bytes(msg_value))
+                dictObj = lib.decode_msg(msg_value)
                 temps.append(dictObj["temperatura"])
                 humid.append(dictObj["humedad"])
                 winds.append(dictObj["direccion_viento"])
