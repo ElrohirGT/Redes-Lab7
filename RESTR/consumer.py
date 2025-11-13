@@ -2,12 +2,14 @@
 
 from confluent_kafka import Consumer
 from dotenv import load_dotenv
+import os
 import json
 
 if __name__ == "__main__":
+    load_dotenv()
     config = {
         # User-specific properties that you must set
-        "bootstrap.servers": "47.182.219.133",
+        "bootstrap.servers": os.getenv("KAFKA_IP"),
         # Fixed properties
         "group.id": "kafka-python-getting-started",
         "auto.offset.reset": "earliest",
@@ -17,7 +19,7 @@ if __name__ == "__main__":
     consumer = Consumer(config)
 
     # Subscribe to topic
-    topic = "22386"
+    topic = os.getenv("TOPIC")
     consumer.subscribe([topic])
 
     # Poll for new messages from Kafka and print them.
