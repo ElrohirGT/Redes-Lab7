@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
+from confluent_kafka import Producer
+from dotenv import load_dotenv
 import random
 import math
 import os
 import json
-from confluent_kafka import Producer
-from dotenv import load_dotenv
-from lib import encode_msg, decode_msg, DIRECTIONS
+import lib
 
 
 if __name__ == "__main__":
@@ -33,13 +33,13 @@ if __name__ == "__main__":
     try:
         print("Starting to generate data...")
         while True:
-            obj = {
-                "temperatura": abs(random.gauss(25, 10)),
-                "humedad": abs(math.ceil(random.gauss(25, 10))),
-                "direccion_viento": random.choice(DIRECTIONS),
-            }
-            encoded = encode_msg(obj)
-            decoded = decode_msg(encoded)
+            obj = lib.NewDataRow(
+                temp=abs(random.gauss(25, 10)),
+                humidity=abs(math.ceil(random.gauss(25, 10))),
+                wind=random.choice(lib.DIRECTIONS),
+            )
+            encoded = lib.encode_msg(obj)
+            decoded = lib.decode_msg(encoded)
 
             print("Original: {}".format(obj), "Encoded:  {}".format(decoded), sep="\n")
             print("=" * 20 * 2)

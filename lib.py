@@ -158,8 +158,12 @@ def decode_msg(msg: bytes) -> dict:
     humid = (resInt & 0b00011111110000000000000) >> 14
     temp = decode_14bit(resInt & 0b00000000001111111111111)
 
+    return NewDataRow(temp, humid, wind)
+
+
+def NewDataRow(temp: float, humidity: int, wind: str) -> dict:
     return {
         "temperatura": temp,
-        "humedad": humid,
+        "humedad": humidity,
         "direccion_viento": wind,
     }

@@ -7,8 +7,7 @@ from matplotlib.animation import FuncAnimation
 import os
 import json
 import random
-from lib import DIRECTIONS
-
+import lib
 
 if __name__ == "__main__":
     load_dotenv()
@@ -88,7 +87,7 @@ if __name__ == "__main__":
                 print("Waiting...")
                 # temps.append(random.gauss(25, 10))
                 # humid.append(int(random.gauss(25, 10)))
-                # winds.append(random.choice(DIRECTIONS))
+                # winds.append(random.choice(lib.DIRECTIONS))
                 break
             elif msg.error():
                 print("ERROR: {}".format(msg.error()))
