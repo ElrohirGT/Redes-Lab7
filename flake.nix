@@ -21,6 +21,7 @@
         p.confluent-kafka
         p.numpy
         p.matplotlib
+        p.python-dotenv
       ]);
     in {
       default = pkgs.mkShell {

@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
 from confluent_kafka import Consumer
+from dotenv import load_dotenv
+import json
 
 if __name__ == "__main__":
     config = {
         # User-specific properties that you must set
-        "bootstrap.servers": "<BOOTSTRAP SERVERS>",
+        "bootstrap.servers": "47.182.219.133",
         # Fixed properties
         "group.id": "kafka-python-getting-started",
         "auto.offset.reset": "earliest",
@@ -28,16 +30,23 @@ if __name__ == "__main__":
                 # rebalance and start consuming
                 print("Waiting...")
             elif msg.error():
-                print("ERROR: %s".format(msg.error()))
+                print("ERROR: {}".format(msg.error()))
             else:
                 # Extract the (optional) key and value, and print.
+                msg_key = msg.key().decode("utf-8")
+                msg_value = msg.value().decode("utf-8")
                 print(
                     "Consumed event from topic {topic}: key = {key:12} value = {value:12}".format(
-                        topic=msg.topic(),
-                        key=msg.key().decode("utf-8"),
-                        value=msg.value().decode("utf-8"),
+                        topic=msg.topic(), key=msg_key, value=msg_value
                     )
                 )
+
+                jsonObj = json.loads(msg_value)
+
+                temperature = jsonObj["temperatura"]
+                humidity = jsonObj["humedad"]
+                wind = jsonObj["direccion_viento"]
+
     except KeyboardInterrupt:
         pass
     finally:

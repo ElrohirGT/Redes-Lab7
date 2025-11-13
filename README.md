@@ -1,6 +1,12 @@
 # Lab7
 
-## Consumer
+## Presentation
+
+[Google Slides](https://docs.google.com/presentation/d/14oB6-YKvWJinkpf4ZpSGYrpNvtvgL99FSCNfC8JVfZI/edit?usp=sharing)
+
+## With JSON
+
+## With restrictions
 
 The consumer is written in python since we need to graph some stuff to the
 screen and what better way to do it than using matplotlib and stuff.
