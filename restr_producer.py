@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 
-from confluent_kafka import Producer
-from dotenv import load_dotenv
 import random
 import math
 import os
 import json
-
+from confluent_kafka import Producer
+from dotenv import load_dotenv
 from lib import encode_msg, DIRECTIONS
 
 
