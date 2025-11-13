@@ -33,7 +33,7 @@ if __name__ == "__main__":
     producer = Producer(config)
     topic = os.getenv("TOPIC")
 
-    timeout = int(os.getenv("TIMEOUT"))
+    timeout = int(os.getenv("TIMEOUT_S"))
 
     # Poll for new messages from Kafka and print them.
     def acked(err, msg):
