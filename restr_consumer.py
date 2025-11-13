@@ -94,18 +94,17 @@ if __name__ == "__main__":
             else:
                 # Extract the (optional) key and value, and print.
                 msg_key = msg.key().decode("utf-8")
-                msg_value = msg.value().decode("utf-8")
+                msg_value = msg.value()
                 print(
                     "Consumed event from topic {topic}: key = {key:12} value = {value:12}".format(
                         topic=msg.topic(), key=msg_key, value=msg_value
                     )
                 )
 
-                jsonObj = json.loads(msg_value)
-
-                temps.append(jsonObj["temperatura"])
-                humid.append(jsonObj["humedad"])
-                winds.append(jsonObj["direccion_viento"])
+                dictObj = lib.decode_msg(bytes(msg_value))
+                temps.append(dictObj["temperatura"])
+                humid.append(dictObj["humedad"])
+                winds.append(dictObj["direccion_viento"])
         # Get current data length
         n = len(temps)
         x = list(range(n))
