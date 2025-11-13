@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 -m
+#!/usr/bin/env python3
 
 from confluent_kafka import Producer
 from dotenv import load_dotenv
