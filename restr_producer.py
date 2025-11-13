@@ -39,10 +39,10 @@ if __name__ == "__main__":
                 wind=random.choice(lib.DIRECTIONS),
             )
             encoded = lib.encode_msg(obj)
-            decoded = lib.decode_msg(encoded)
-
-            print("Original: {}".format(obj), "Encoded:  {}".format(decoded), sep="\n")
-            print("=" * 20 * 2)
+            # decoded = lib.decode_msg(encoded)
+            #
+            # print("Original: {}".format(obj), "Decoded:  {}".format(decoded), sep="\n")
+            # print("=" * 20 * 2)
             producer.produce(topic, key="sensor1", value=encoded, callback=acked)
             # Wait up to 1 second for events. Callbacks will be invoked during
             # this method call if the message is acknowledged.

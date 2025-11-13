@@ -102,6 +102,7 @@ if __name__ == "__main__":
                 )
 
                 dictObj = lib.decode_msg(msg_value)
+                print("Decoded:  {}".format(dictObj), sep="\n")
                 temps.append(dictObj["temperatura"])
                 humid.append(dictObj["humedad"])
                 winds.append(dictObj["direccion_viento"])
@@ -111,17 +112,17 @@ if __name__ == "__main__":
 
         # Update temperature plot
         line1.set_data(x, temps)
-        ax1.set_xlim(max(0, n - 50), n)
+        # ax1.set_xlim(max(0, n - 50), n)
 
         # Update humidity plot
         line2.set_data(x, humid)
-        ax2.set_xlim(max(0, n - 50), n)
+        # ax2.set_xlim(max(0, n - 50), n)
 
         # Update direction plot
         dir_values = [dir_map.get(d, 0) for d in winds]
         ax3.clear()
         ax3.scatter(x, dir_values, c="green", s=30, alpha=0.6)
-        ax3.set_xlim(max(0, n - 50), n)
+        # ax3.set_xlim(max(0, n - 50), n)
         ax3.set_ylim(-45, 360)
         ax3.set_ylabel("Direction (degrees)", fontsize=10)
         ax3.set_xlabel("Time (samples)", fontsize=10)
