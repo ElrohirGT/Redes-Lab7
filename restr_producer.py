@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3 -m
 
 from confluent_kafka import Producer
 from dotenv import load_dotenv
@@ -7,19 +7,8 @@ import math
 import os
 import json
 
-#  N
-# E O
-#  S
-DIRECTIONS = [
-    "N",
-    "NO",
-    "O",
-    "SO",
-    "O",
-    "SE",
-    "E",
-    "NE",
-]
+from lib import encode_msg, DIRECTIONS
+
 
 if __name__ == "__main__":
     load_dotenv()
@@ -50,11 +39,11 @@ if __name__ == "__main__":
                 "humedad": math.ceil(random.gauss(25, 10)),
                 "direccion_viento": random.choice(DIRECTIONS),
             }
-            jsonStr = json.dumps(obj)
-            producer.produce(topic, key="sensor1", value=jsonStr, callback=acked)
+            encoded = encode_msg(obj)
+            # producer.produce(topic, key="sensor1", value=encoded, callback=acked)
             # Wait up to 1 second for events. Callbacks will be invoked during
             # this method call if the message is acknowledged.
-            producer.poll(timeout)
+            # producer.poll(timeout)
 
     except KeyboardInterrupt:
         pass

@@ -7,20 +7,7 @@ from matplotlib.animation import FuncAnimation
 import os
 import json
 import random
-
-#  N
-# O E
-#  S
-DIRECTIONS = [
-    "N",
-    "NE",
-    "E",
-    "SE",
-    "S",
-    "SO",
-    "O",
-    "NO",
-]
+from lib import DIRECTIONS
 
 
 if __name__ == "__main__":
