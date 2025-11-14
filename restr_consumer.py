@@ -8,6 +8,7 @@ import os
 import json
 import random
 import lib
+import numpy as np
 
 if __name__ == "__main__":
     load_dotenv()
@@ -33,11 +34,7 @@ if __name__ == "__main__":
 
     # Initialize figure with 3 subplots
     fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(10, 8))
-    fig.suptitle("Live Weather Data", fontsize=14, fontweight="bold")
-
-    # Initialize line objects
-    (line1,) = ax1.plot([], [], "r-", linewidth=2, label="Temperature")
-    (line2,) = ax2.plot([], [], "b-", linewidth=2, label="Humidity")
+    fig.suptitle("Live Weather Data - Histogramas", fontsize=14, fontweight="bold")
 
     # Direction mapping for visualization
     dir_map = {
@@ -53,41 +50,30 @@ if __name__ == "__main__":
 
     def init():
         """Initialize the plot"""
-        ax1.set_xlim(0, 50)
-        ax1.set_ylim(0, 40)
-        ax1.set_ylabel("Temperature (°C)", fontsize=10)
-        ax1.legend(loc="upper left")
-        ax1.grid(True, alpha=0.3)
+        ax1.set_ylabel("Frecuencia", fontsize=10)
+        ax1.set_xlabel("Temperatura (°C)", fontsize=10)
+        ax1.set_title("Histograma de Temperatura", fontsize=11)
+        ax1.grid(True, alpha=0.3, axis="y")
 
-        ax2.set_xlim(0, 50)
-        ax2.set_ylim(0, 100)
-        ax2.set_ylabel("Humidity (%)", fontsize=10)
-        ax2.legend(loc="upper left")
-        ax2.grid(True, alpha=0.3)
+        ax2.set_ylabel("Frecuencia", fontsize=10)
+        ax2.set_xlabel("Humedad (%)", fontsize=10)
+        ax2.set_title("Histograma de Humedad", fontsize=11)
+        ax2.grid(True, alpha=0.3, axis="y")
 
-        ax3.set_xlim(0, 50)
-        ax3.set_ylim(-45, 360)
-        ax3.set_ylabel("Direction (degrees)", fontsize=10)
-        ax3.set_xlabel("Time (samples)", fontsize=10)
-        ax3.set_yticks([0, 90, 180, 270, 360])
-        ax3.set_yticklabels(["N", "E", "S", "W", "N"])
-        ax3.grid(True, alpha=0.3)
+        ax3.set_ylabel("Frecuencia", fontsize=10)
+        ax3.set_xlabel("Dirección del Viento", fontsize=10)
+        ax3.set_title("Histograma de Dirección del Viento", fontsize=11)
+        ax3.grid(True, alpha=0.3, axis="y")
 
-        return line1, line2
+        return []
 
     def update(frame):
         """Update function called for each animation frame"""
-        # Simulate adding new data (replace with your actual data source)
+        # Poll for new messages
         while True:
             msg = consumer.poll(1.0)
             if msg is None:
-                # Initial message consumption may take up to
-                # `session.timeout.ms` for the consumer group to
-                # rebalance and start consuming
                 print("Waiting...")
-                # temps.append(random.gauss(25, 10))
-                # humid.append(int(random.gauss(25, 10)))
-                # winds.append(random.choice(lib.DIRECTIONS))
                 break
             elif msg.error():
                 print("ERROR: {}".format(msg.error()))
@@ -108,31 +94,62 @@ if __name__ == "__main__":
                 temps.append(dictObj["temperatura"])
                 humid.append(dictObj["humedad"])
                 winds.append(dictObj["direccion_viento"])
-        # Get current data length
-        n = len(temps)
-        x = list(range(n))
+                break
 
-        # Update temperature plot
-        line1.set_data(x, temps)
-        # ax1.set_xlim(max(0, n - 50), n)
+        if len(temps) == 0:
+            return []
 
-        # Update humidity plot
-        line2.set_data(x, humid)
-        # ax2.set_xlim(max(0, n - 50), n)
-
-        # Update direction plot
-        dir_values = [dir_map.get(d, 0) for d in winds]
+        # Clear all axes
+        ax1.clear()
+        ax2.clear()
         ax3.clear()
-        ax3.scatter(x, dir_values, c="green", s=30, alpha=0.6)
-        # ax3.set_xlim(max(0, n - 50), n)
-        ax3.set_ylim(-45, 360)
-        ax3.set_ylabel("Direction (degrees)", fontsize=10)
-        ax3.set_xlabel("Time (samples)", fontsize=10)
-        ax3.set_yticks([0, 90, 180, 270, 360])
-        ax3.set_yticklabels(["N", "E", "S", "W", "N"])
-        ax3.grid(True, alpha=0.3)
 
-        return line1, line2
+        # Histograma de Temperatura
+        ax1.hist(temps, bins=15, color="red", alpha=0.7, edgecolor="black")
+        ax1.set_ylabel("Frecuencia", fontsize=10)
+        ax1.set_xlabel("Temperatura (°C)", fontsize=10)
+        ax1.set_title(f"Histograma de Temperatura (n={len(temps)})", fontsize=11)
+        ax1.grid(True, alpha=0.3, axis="y")
+
+        # Histograma de Humedad
+        ax2.hist(humid, bins=15, color="blue", alpha=0.7, edgecolor="black")
+        ax2.set_ylabel("Frecuencia", fontsize=10)
+        ax2.set_xlabel("Humedad (%)", fontsize=10)
+        ax2.set_title(f"Histograma de Humedad (n={len(humid)})", fontsize=11)
+        ax2.grid(True, alpha=0.3, axis="y")
+
+        # Histograma de Dirección del Viento
+        direction_labels = list(dir_map.keys())
+        direction_counts = [winds.count(d) for d in direction_labels]
+
+        bars = ax3.bar(
+            direction_labels,
+            direction_counts,
+            color="green",
+            alpha=0.7,
+            edgecolor="black",
+        )
+        ax3.set_ylabel("Frecuencia", fontsize=10)
+        ax3.set_xlabel("Dirección del Viento", fontsize=10)
+        ax3.set_title(
+            f"Histograma de Dirección del Viento (n={len(winds)})", fontsize=11
+        )
+        ax3.grid(True, alpha=0.3, axis="y")
+
+        # Añadir valores encima de las barras
+        for bar, count in zip(bars, direction_counts):
+            if count > 0:
+                height = bar.get_height()
+                ax3.text(
+                    bar.get_x() + bar.get_width() / 2.0,
+                    height,
+                    f"{int(count)}",
+                    ha="center",
+                    va="bottom",
+                    fontsize=8,
+                )
+
+        return []
 
     try:
         ani = FuncAnimation(
