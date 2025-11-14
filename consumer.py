@@ -9,9 +9,7 @@ import lib
 
 load_dotenv()
 config = {
-    # User-specific properties that you must set
     "bootstrap.servers": os.getenv("KAFKA_IP"),
-    # Fixed properties
     "group.id": "kafka-python-getting-started",
     "auto.offset.reset": "earliest",
 }
@@ -29,49 +27,28 @@ temps = []
 humid = []
 winds = []
 
-# Initialize figure with 3 subplots
 fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(10, 8))
-fig.suptitle("Live Weather Data", fontsize=14, fontweight="bold")
+fig.suptitle("Live Weather Data - Histograms", fontsize=14, fontweight="bold")
 
-# Initialize line objects
-(line1,) = ax1.plot([], [], "r-", linewidth=2, label="Temperature")
-(line2,) = ax2.plot([], [], "b-", linewidth=2, label="Humidity")
-
-# Direction mapping for visualization
-dir_map = {
-    "N": 0,
-    "NE": 45,
-    "E": 90,
-    "SE": 135,
-    "S": 180,
-    "SO": 225,
-    "O": 270,
-    "NO": 315,
-}
 
 def init():
     """Initialize the plot"""
-    ax1.set_xlim(0, 50)
-    ax1.set_ylim(0, 40)
-    ax1.set_ylabel("Temperature (°C)", fontsize=10)
-    ax1.legend(loc="upper left")
-    ax1.grid(True, alpha=0.3)
+    ax1.set_ylabel("Frequency", fontsize=10)
+    ax1.set_xlabel("Temperature (°C)", fontsize=10)
+    ax1.set_title("Temperature Distribution")
+    ax1.grid(True, alpha=0.3, axis='y')
 
-    ax2.set_xlim(0, 50)
-    ax2.set_ylim(0, 100)
-    ax2.set_ylabel("Humidity (%)", fontsize=10)
-    ax2.legend(loc="upper left")
-    ax2.grid(True, alpha=0.3)
+    ax2.set_ylabel("Frequency", fontsize=10)
+    ax2.set_xlabel("Humidity (%)", fontsize=10)
+    ax2.set_title("Humidity Distribution")
+    ax2.grid(True, alpha=0.3, axis='y')
 
-    ax3.set_xlim(0, 50)
-    ax3.set_ylim(-45, 360)
-    ax3.set_ylabel("Direction (degrees)", fontsize=10)
-    ax3.set_xlabel("Time (samples)", fontsize=10)
-    ax3.set_yticks([0, 90, 180, 270, 360])
-    ax3.set_yticklabels(["N", "E", "S", "W", "N"])
-    ax3.grid(True, alpha=0.3)
+    ax3.set_ylabel("Frequency", fontsize=10)
+    ax3.set_xlabel("Wind Direction", fontsize=10)
+    ax3.set_title("Wind Direction Distribution")
+    ax3.grid(True, alpha=0.3, axis='y')
 
-    return line1, line2
+    return []
 
 def update(frame):
     """Update function called for each animation frame"""
@@ -79,13 +56,7 @@ def update(frame):
     while True:
         msg = consumer.poll(1.0)
         if msg is None:
-            # Initial message consumption may take up to
-            # `session.timeout.ms` for the consumer group to
-            # rebalance and start consuming
             print("Waiting...")
-            # temps.append(random.gauss(25, 10))
-            # humid.append(int(random.gauss(25, 10)))
-            # winds.append(random.choice(lib.DIRECTIONS))
             break
         elif msg.error():
             print("ERROR: {}".format(msg.error()))
@@ -110,31 +81,43 @@ def update(frame):
             temps.append(dictObj["temperatura"])
             humid.append(dictObj["humedad"])
             winds.append(dictObj["direccion_viento"])
-    # Get current data length
-    n = len(temps)
-    x = list(range(n))
-
-    # Update temperature plot
-    line1.set_data(x, temps)
-    # ax1.set_xlim(max(0, n - 50), n)
-
-    # Update humidity plot
-    line2.set_data(x, humid)
-    # ax2.set_xlim(max(0, n - 50), n)
-
-    # Update direction plot
-    dir_values = [dir_map.get(d, 0) for d in winds]
+    
+    # Check if we have data to plot
+    if not temps:
+        return []
+    
+    # Clear all axes
+    ax1.clear()
+    ax2.clear()
     ax3.clear()
-    ax3.scatter(x, dir_values, c="green", s=30, alpha=0.6)
-    # ax3.set_xlim(max(0, n - 50), n)
-    ax3.set_ylim(-45, 360)
-    ax3.set_ylabel("Direction (degrees)", fontsize=10)
-    ax3.set_xlabel("Time (samples)", fontsize=10)
-    ax3.set_yticks([0, 90, 180, 270, 360])
-    ax3.set_yticklabels(["N", "E", "S", "W", "N"])
-    ax3.grid(True, alpha=0.3)
-
-    return line1, line2
+    
+    # Plot temperature histogram
+    ax1.hist(temps, bins=20, color='red', alpha=0.7, edgecolor='black')
+    ax1.set_ylabel("Frequency", fontsize=10)
+    ax1.set_xlabel("Temperature (°C)", fontsize=10)
+    ax1.set_title(f"Temperature Distribution (n={len(temps)})")
+    ax1.grid(True, alpha=0.3, axis='y')
+    
+    # Plot humidity histogram
+    ax2.hist(humid, bins=20, color='blue', alpha=0.7, edgecolor='black')
+    ax2.set_ylabel("Frequency", fontsize=10)
+    ax2.set_xlabel("Humidity (%)", fontsize=10)
+    ax2.set_title(f"Humidity Distribution (n={len(humid)})")
+    ax2.grid(True, alpha=0.3, axis='y')
+    
+    # Plot wind direction histogram (categorical)
+    from collections import Counter
+    wind_counts = Counter(winds)
+    directions = list(wind_counts.keys())
+    counts = list(wind_counts.values())
+    
+    ax3.bar(directions, counts, color='green', alpha=0.7, edgecolor='black')
+    ax3.set_ylabel("Frequency", fontsize=10)
+    ax3.set_xlabel("Wind Direction", fontsize=10)
+    ax3.set_title(f"Wind Direction Distribution (n={len(winds)})")
+    ax3.grid(True, alpha=0.3, axis='y')
+    
+    return []
 
 try:
     ani = FuncAnimation(
