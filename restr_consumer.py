@@ -96,13 +96,12 @@ if __name__ == "__main__":
                 msg_key = msg.key().decode("utf-8")
                 msg_value = msg.value()
                 print(
-                    "Consumed event from topic {topic}: key = {key:12} value = {value:12}".format(
-                        topic=msg.topic(), key=msg_key, value=msg_value
+                    "Consumed event from topic {topic}: key = {key:12} value = {}".format(
+                        bytes(msg_value),
+                        topic=msg.topic(),
+                        key=msg_key,
                     )
                 )
-
-                if msg_key != lib.SENSOR_1_KEY:
-                    continue
 
                 dictObj = lib.decode_msg(msg_value)
                 print("Decoded:  {}".format(dictObj), sep="\n")

@@ -7,6 +7,7 @@ import math
 import os
 import json
 import lib
+import time
 
 
 if __name__ == "__main__":
@@ -21,7 +22,7 @@ if __name__ == "__main__":
     producer = Producer(config)
     topic = os.getenv("TOPIC")
 
-    timeout = int(os.getenv("TIMEOUT_S"))
+    timeout_s = int(os.getenv("TIMEOUT_S"))
 
     # Poll for new messages from Kafka and print them.
     def acked(err, msg):
@@ -42,11 +43,13 @@ if __name__ == "__main__":
             # decoded = lib.decode_msg(encoded)
             #
             # print("Original: {}".format(obj), "Decoded:  {}".format(decoded), sep="\n")
+            print("Original: {}".format(obj))
             # print("=" * 20 * 2)
             producer.produce(topic, key=lib.SENSOR_1_KEY, value=encoded, callback=acked)
             # Wait up to 1 second for events. Callbacks will be invoked during
             # this method call if the message is acknowledged.
-            producer.poll(timeout)
+            producer.poll(1.0)
+            time.sleep(timeout_s)
 
     except KeyboardInterrupt:
         pass
