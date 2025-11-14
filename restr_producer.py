@@ -43,7 +43,7 @@ if __name__ == "__main__":
             #
             # print("Original: {}".format(obj), "Decoded:  {}".format(decoded), sep="\n")
             # print("=" * 20 * 2)
-            producer.produce(topic, key="sensor1", value=encoded, callback=acked)
+            producer.produce(topic, key=lib.SENSOR_1_KEY, value=encoded, callback=acked)
             # Wait up to 1 second for events. Callbacks will be invoked during
             # this method call if the message is acknowledged.
             producer.poll(timeout)

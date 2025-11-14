@@ -14,6 +14,8 @@ DIRECTIONS = [
     "NO",
 ]
 
+SENSOR_1_KEY = "sensor 1"
+
 
 def float_to_14bit_no_sign(value):
     """

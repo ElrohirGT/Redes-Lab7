@@ -101,6 +101,9 @@ if __name__ == "__main__":
                     )
                 )
 
+                if msg_key != lib.SENSOR_1_KEY:
+                    continue
+
                 dictObj = lib.decode_msg(msg_value)
                 print("Decoded:  {}".format(dictObj), sep="\n")
                 temps.append(dictObj["temperatura"])
